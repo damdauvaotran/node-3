@@ -22,11 +22,15 @@ db.once('open', function () {
     console.log('Database connected');
 });
 
+const {ObjectId} = mongoose.Types;
+
 const todosSchema = new Schema({
-    "_id": String,
+    "_id": ObjectId,
     "title": String,
     "completed": Boolean,
-    "created": {type: Date, default: Date.now()}
+    "created": {
+        type: Date, default: Date.now()
+    }
 });
 
 
@@ -38,22 +42,15 @@ app.get('/', (req, res) => {
 
 app.post('/todos', (req, res) => {
     const {title} = req.body;
-    Todos.find({title}, (err, docs) => {
-        if (err) {
-            console.error(err);
-            res.json({success: false, message: "Something happen wrong, please try again"})
-        } else {
-            if (docs.length === 0) {
-                res.json({success: false, message: "Data not exist"})
-            } else {
-                res.json({success: true, data: docs[0]});
-            }
+    const newTodo = new Todos({_id: new ObjectId(), title, completed: false});
+    newTodo.save().then((e) => {
+            res.json({success: true, data: newTodo});
         }
-    });
+    )
 });
 
 app.get('/todos/:id', (req, res) => {
-    const {id} = req.params;
+    const id = ObjectId(req.params.id);
     Todos.findOne({_id: id}, (err, docs) => {
         if (err) {
             console.error(err);
@@ -69,7 +66,7 @@ app.get('/todos/:id', (req, res) => {
 });
 
 app.post('/todos/:id', (req, res) => {
-    const {id} = req.params;
+    const id = ObjectId(req.params.id);
     const {title} = req.body;
 
     Todos.findOneAndUpdate({_id: id}, {$set: {title}}, {new: true}, (err, docs) => {
@@ -91,7 +88,7 @@ app.post('/todos/:id', (req, res) => {
 app.post('/todos/:id/toogle', (req, res) => {
 
 
-    const {id} = req.params;
+    const id = mongoose.Types.ObjectId(req.params.id);
     Todos.findOne({_id: id}).then((docs) => {
 
         const completed = docs.completed;
@@ -106,7 +103,7 @@ app.post('/todos/:id/toogle', (req, res) => {
 
 app.delete('/todos/:id', (req, res) => {
 
-    const {id} = req.params;
+    const id = mongoose.Types.ObjectId(req.params.id);
     Todos.findOneAndDelete({_id: id}).then((docs) => {
 
         const completed = docs.completed;
