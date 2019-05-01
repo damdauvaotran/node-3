@@ -33,7 +33,7 @@ const todosSchema = new Schema({
 const Todos = mongoose.model('todos', todosSchema);
 
 app.get('/', (req, res) => {
-    res.send("Hello world");
+    res.send("Hello, world!");
 });
 
 app.post('/todos', (req, res) => {
